@@ -3,6 +3,6 @@ pythonpath = "."
 addopts = '-p no:warnings'
 
 [tool.taskipy.tasks]
-run = 'uvicorn main:app --reload '
+run = 'uvicorn DesafioInfog2.main:app --reload '
 test = 'pytest -s -x --cov=DesafioInfog2 -vv'
 post_test = 'coverage html'
