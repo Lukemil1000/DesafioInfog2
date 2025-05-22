@@ -1,0 +1,8 @@
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnings'
+
+[tool.taskipy.tasks]
+run = 'uvicorn main:app --reload '
+test = 'pytest -s -x --cov=DesafioInfog2 -vv'
+post_test = 'coverage html'
