@@ -3,6 +3,7 @@ pythonpath = "."
 addopts = '-p no:warnings'
 
 [tool.taskipy.tasks]
-run = 'uvicorn DesafioInfog2.main:app --reload '
+run = 'uvicorn DesafioInfog2.main:app'
 test = 'pytest -s -x --cov=DesafioInfog2 -vv'
 post_test = 'coverage html'
+database = 'docker-compose up -d desafio_database'
