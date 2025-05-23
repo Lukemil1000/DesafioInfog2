@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from win32inetcon import HTTP_STATUS_OK
+
+from DesafioInfog2.schemas.userSchemas import UserCreate, UserPublic
 
 app = FastAPI()
 
@@ -8,6 +11,6 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+@app.post("/auth/register", status_code=HTTP_STATUS_OK, response_model=UserPublic)
+def create_user(user: UserCreate):
+    return user
