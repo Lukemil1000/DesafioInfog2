@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from DesafioInfog2.database import get_session
 from DesafioInfog2.models import User, Client
 from DesafioInfog2.schemas.clientSchemas import ClientPublic, ClientCreate, ClientList
+from DesafioInfog2.schemas.utilSchemas import Message
 from DesafioInfog2.securiry import get_token_user
 
 router = APIRouter(prefix='/clients', tags=['clients'])
@@ -82,3 +83,22 @@ def get_client_by_id(
         )
 
     return client
+
+@router.delete("/{client_id}", status_code=HTTPStatus.OK, response_model=Message)
+def delete_client(
+        client_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    client = session.scalar(select(Client).where(Client.id == client_id))
+
+    if not client:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Client not found"
+        )
+
+    session.delete(client)
+    session.commit()
+
+    return {"message": "Client deleted"}
