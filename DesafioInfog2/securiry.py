@@ -15,8 +15,9 @@ from DesafioInfog2.settings import Settings
 from jwt import encode, decode, DecodeError
 
 SECRET_KEY = Settings().SECRET_KEY
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ALGORITHM = Settings().ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = Settings().ACCESS_TOKEN_EXPIRE_MINUTES
+
 pwd_context = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
