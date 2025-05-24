@@ -23,3 +23,15 @@ class Client:
     name: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column(unique=True)
     cpf: Mapped[str] = mapped_column(unique=True)
+
+@table_registry.mapped_as_dataclass
+class Product:
+    __tablename__ = 'products'
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    name: Mapped[str] = mapped_column()
+    description: Mapped[str] = mapped_column()
+    price: Mapped[float] = mapped_column()
+    category: Mapped[str] = mapped_column()
+    stock: Mapped[int] = mapped_column()
+    expire_date: Mapped[datetime] = mapped_column(nullable=True)
