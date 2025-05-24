@@ -66,3 +66,19 @@ def get_clients(
     clients = session.scalars(query.offset(skip).limit(limit)).all()
 
     return {"clients": clients}
+
+@router.get("/{client_id}", status_code=HTTPStatus.OK, response_model=ClientPublic)
+def get_client_by_id(
+        client_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    client = session.scalar(select(Client).where(Client.id == client_id))
+
+    if not client:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Client not found"
+        )
+
+    return client
