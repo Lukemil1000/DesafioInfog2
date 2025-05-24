@@ -10,19 +10,15 @@ from DesafioInfog2.schemas.clientSchemas import ClientPublic, ClientCreate, Clie
 from DesafioInfog2.schemas.utilSchemas import Message
 from DesafioInfog2.securiry import get_token_user
 
-router = APIRouter(prefix='/clients', tags=['clients'])
-
-@router.post("/", status_code=HTTPStatus.CREATED, response_model=ClientPublic)
-def create_client(
-        client: ClientCreate,
-        session: Session = Depends(get_session),
-        token_user: User = Depends(get_token_user)
-):
-    existing_client = session.scalar(
-        select(Client).where(
-            (Client.email == client.email) | (Client.cpf == client.cpf)
-        )
+def check_existing_client(session: Session, client: ClientCreate, client_id: int | None = None):
+    query = select(Client).where(
+        (Client.email == client.email) | (Client.cpf == client.cpf)
     )
+
+    if client_id:
+        query = query.where(Client.id != client_id)
+
+    existing_client = session.scalar(query)
 
     if existing_client:
         if existing_client.email == client.email:
@@ -35,6 +31,16 @@ def create_client(
                 status_code=HTTPStatus.CONFLICT,
                 detail="CPF already registered"
             )
+
+router = APIRouter(prefix='/clients', tags=['clients'])
+
+@router.post("/", status_code=HTTPStatus.CREATED, response_model=ClientPublic)
+def create_client(
+        client: ClientCreate,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    check_existing_client(session, client)
 
     db_client = Client(
         name=client.name,
@@ -102,3 +108,30 @@ def delete_client(
     session.commit()
 
     return {"message": "Client deleted"}
+
+@router.put("/{client_id}", status_code=HTTPStatus.OK, response_model=ClientPublic)
+def update_client(
+        client_update: ClientCreate,
+        client_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    client = session.scalar(select(Client).where(Client.id == client_id))
+
+    if not client:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Client not found"
+        )
+
+    check_existing_client(session, client_update, client_id=client_id)
+
+    client.name = client_update.name
+    client.email = client_update.email
+    client.cpf = client_update.cpf
+
+    session.add(client)
+    session.commit()
+    session.refresh(client)
+
+    return client
