@@ -12,11 +12,9 @@ from DesafioInfog2.securiry import hash_password, verify_password, create_access
 
 app = FastAPI()
 
-
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
 
 @app.post("/auth/register", status_code=HTTPStatus.CREATED, response_model=UserPublic)
 def create_user(user: UserCreate, session: Session = Depends(get_session)):
