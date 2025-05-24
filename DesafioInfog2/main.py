@@ -1,13 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException
 from http import HTTPStatus
 
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from DesafioInfog2.models import User
-from DesafioInfog2.schemas.userSchemas import UserCreate, UserPublic
+from DesafioInfog2.schemas.userSchemas import UserCreate, UserPublic, Token
 from DesafioInfog2.database import get_session
-from DesafioInfog2.securiry import hash_password
+from DesafioInfog2.securiry import hash_password, verify_password, create_access_token
 
 app = FastAPI()
 
@@ -50,3 +51,23 @@ def create_user(user: UserCreate, session: Session = Depends(get_session)):
     session.refresh(db_user)
 
     return db_user
+
+@app.post("/auth/login", status_code=HTTPStatus.OK, response_model=Token)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
+    user = session.scalar(select(User).where(User.username == form_data.username))
+
+    if not user:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+
+    if not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+
+    token = create_access_token(data={"sub": user.username})
+
+    return {"access_token": token, "token_type": "bearer"}
