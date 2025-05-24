@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from DesafioInfog2.models import User
 from DesafioInfog2.schemas.userSchemas import UserCreate, UserPublic, Token
 from DesafioInfog2.database import get_session
-from DesafioInfog2.securiry import hash_password, verify_password, create_access_token
+from DesafioInfog2.securiry import hash_password, verify_password, create_access_token, get_token_user
 
 app = FastAPI()
 
@@ -67,5 +67,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = D
         )
 
     token = create_access_token(data={"sub": user.username})
+
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.post("/auth/refresh-token", status_code=HTTPStatus.OK, response_model=Token)
+def refresh_token(token_user: User = Depends(get_token_user)):
+    token = create_access_token(data={"sub": token_user.username})
 
     return {"access_token": token, "token_type": "bearer"}
