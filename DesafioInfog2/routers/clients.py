@@ -51,9 +51,18 @@ def create_client(
 def get_clients(
         skip: int = 0,
         limit: int = 10,
+        name: str | None = None,
+        email: str | None = None,
         session: Session = Depends(get_session),
         token_user: User = Depends(get_token_user)
 ):
-    clients = session.scalars(select(Client).offset(skip).limit(limit)).all()
+    query = select(Client)
+
+    if name:
+        query = query.filter(Client.name.contains(name))
+    if email:
+        query = query.filter(Client.email.contains(email))
+
+    clients = session.scalars(query.offset(skip).limit(limit)).all()
 
     return {"clients": clients}
