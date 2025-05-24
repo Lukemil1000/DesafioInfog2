@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from DesafioInfog2.database import get_session
 from DesafioInfog2.models import User, Client
-from DesafioInfog2.schemas.clientSchemas import ClientPublic, ClientCreate
+from DesafioInfog2.schemas.clientSchemas import ClientPublic, ClientCreate, ClientList
 from DesafioInfog2.securiry import get_token_user
 
 router = APIRouter(prefix='/clients', tags=['clients'])
@@ -46,3 +46,14 @@ def create_client(
     session.refresh(db_client)
 
     return db_client
+
+@router.get("/", status_code=HTTPStatus.OK, response_model=ClientList)
+def get_clients(
+        skip: int = 0,
+        limit: int = 10,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    clients = session.scalars(select(Client).offset(skip).limit(limit)).all()
+
+    return {"clients": clients}

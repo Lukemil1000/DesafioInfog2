@@ -14,3 +14,6 @@ class ClientCreate(BaseModel):
     name: str
     email: EmailStr
     cpf: CPFMaskCustom
+
+class ClientList(BaseModel):
+    clients: list[ClientPublic]
