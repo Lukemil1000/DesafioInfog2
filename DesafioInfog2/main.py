@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from DesafioInfog2.models import User
 from DesafioInfog2.schemas.userSchemas import UserCreate, UserPublic
 from DesafioInfog2.database import get_session
+from DesafioInfog2.securiry import hash_password
 
 app = FastAPI()
 
@@ -36,9 +37,11 @@ def create_user(user: UserCreate, session: Session = Depends(get_session)):
                 detail="Email already registered"
             )
 
+    hashed_password = hash_password(user.password)
+
     db_user = User(
         username=user.username,
-        password=user.password,
+        password=hashed_password,
         email=user.email
     )
 
