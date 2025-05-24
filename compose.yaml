@@ -11,13 +11,14 @@ services:
 
   desafio_app:
     image: desafio_infog2
+    entrypoint: ./entrypoint.sh
     build: .
     ports:
       - "8000:8000"
     depends_on:
       - desafio_database
     env_file:
-      - .env
+      - .env_prod
 
 volumes:
   pgdata:
