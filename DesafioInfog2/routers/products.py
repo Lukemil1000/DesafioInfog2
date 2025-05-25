@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from DesafioInfog2.database import get_session
 from DesafioInfog2.models import User, Product
 from DesafioInfog2.schemas.productSchemas import ProductPublic, ProductCreate, ProductList
+from DesafioInfog2.schemas.utilSchemas import Message
 from DesafioInfog2.securiry import get_token_user
 
 router = APIRouter(prefix='/products', tags=['products'])
@@ -76,3 +77,23 @@ def get_product_by_id(
         )
 
     return product
+
+@router.delete("/{product_id}", status_code=HTTPStatus.OK, response_model=Message)
+def delete_product(
+        product_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    product = session.scalar(select(Product).where(Product.id == product_id))
+
+    if not product:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Product not found"
+        )
+
+    session.delete(product)
+    session.commit()
+
+    return {"message": "Product deleted"}
+
