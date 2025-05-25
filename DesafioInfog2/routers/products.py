@@ -32,7 +32,7 @@ def create_product(
 
     return db_product
 
-@router.get("/", response_model=ProductList)
+@router.get("/", status_code=HTTPStatus.OK, response_model=ProductList)
 def get_products(
         skip: int = Query(default=0, ge=0),
         limit: int = Query(default=10, gt=0),
@@ -60,3 +60,19 @@ def get_products(
     products = session.scalars(query.offset(skip).limit(limit)).all()
 
     return {"products": products}
+
+@router.get("/{product_id}", status_code=HTTPStatus.OK, response_model=ProductPublic)
+def get_product_by_id(
+        product_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    product = session.scalar(select(Product).where(Product.id == product_id))
+
+    if not product:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Product not found"
+        )
+
+    return product
