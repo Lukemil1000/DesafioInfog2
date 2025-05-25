@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -56,10 +56,10 @@ def create_client(
 
 @router.get("/", status_code=HTTPStatus.OK, response_model=ClientList)
 def get_clients(
-        skip: int = 0,
-        limit: int = 10,
-        name: str | None = None,
-        email: str | None = None,
+        skip: int = Query(default=0, ge=0),
+        limit: int = Query(default=10, gt=0),
+        name: str | None = Query(default=None),
+        email: str | None = Query(default=None),
         session: Session = Depends(get_session),
         token_user: User = Depends(get_token_user)
 ):

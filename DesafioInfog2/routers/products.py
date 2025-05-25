@@ -34,12 +34,12 @@ def create_product(
 
 @router.get("/", response_model=ProductList)
 def get_products(
-        skip: int = 0,
-        limit: int = 10,
-        category: str | None = None,
-        price_min: float | None = None,
-        price_max: float | None = None,
-        available_stock: bool | None = None,
+        skip: int = Query(default=0, ge=0),
+        limit: int = Query(default=10, gt=0),
+        category: str | None = Query(default=None),
+        price_min: float | None = Query(default=None, ge=0),
+        price_max: float | None = Query(default=None, ge=0),
+        available_stock: bool | None = Query(default=None),
         session: Session = Depends(get_session),
         token_user: User = Depends(get_token_user)
 ):
