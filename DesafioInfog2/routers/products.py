@@ -97,3 +97,30 @@ def delete_product(
 
     return {"message": "Product deleted"}
 
+@router.put("/{product_id}", status_code=HTTPStatus.OK, response_model=ProductPublic)
+def update_product(
+        product_update: ProductCreate,
+        product_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    product = session.scalar(select(Product).where(Product.id == product_id))
+
+    if not product:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Product not found"
+        )
+
+    product.name = product_update.name
+    product.description = product_update.description
+    product.price = product_update.price
+    product.category = product_update.category
+    product.stock = product_update.stock
+    product.expire_date = product_update.expire_date
+
+    session.add(product)
+    session.commit()
+    session.refresh(product)
+
+    return product
