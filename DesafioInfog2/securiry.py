@@ -12,7 +12,7 @@ from DesafioInfog2.database import get_session
 from DesafioInfog2.models import User
 from DesafioInfog2.settings import Settings
 
-from jwt import encode, decode, DecodeError
+from jwt import encode, decode, DecodeError, ExpiredSignatureError
 
 SECRET_KEY = Settings().SECRET_KEY
 ALGORITHM = Settings().ALGORITHM
@@ -50,6 +50,11 @@ def get_token_user(session: Session = Depends(get_session), token: str = Depends
 
     except DecodeError:
         raise credentials_exception
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="token has expired.",
+        )
 
     user = session.scalar(select(User).where(User.username == subject_username))
 
