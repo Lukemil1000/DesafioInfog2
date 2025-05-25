@@ -18,8 +18,8 @@ class OrderProduct:
     __tablename__ = "order_product"
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
-    order_id: Mapped[int] = Column("order_id", ForeignKey("orders.id"))
-    product_id: Mapped[int] = Column("product_id", ForeignKey("products.id"))
+    order_id: Mapped[int] = mapped_column("order_id", ForeignKey("orders.id"))
+    product_id: Mapped[int] = mapped_column("product_id", ForeignKey("products.id"))
 
 @table_registry.mapped_as_dataclass
 class User:
@@ -39,6 +39,7 @@ class Client:
     name: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column(unique=True)
     cpf: Mapped[str] = mapped_column(unique=True)
+    orders: Mapped[list["Order"]] = relationship("Order", back_populates="client", init=False)
 
 @table_registry.mapped_as_dataclass
 class Product:
@@ -61,3 +62,5 @@ class Order:
     state: Mapped[OrderState] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
     products: Mapped[list[Product]] = relationship("Product", secondary="order_product", back_populates="orders")
+    client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
+    client: Mapped[Client] = relationship("Client", back_populates="orders", init=False)
