@@ -61,6 +61,7 @@ class Order:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     state: Mapped[OrderState] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
-    products: Mapped[list[Product]] = relationship("Product", secondary="order_product", back_populates="orders")
+    products: Mapped[list[Product]] = relationship(
+        "Product", secondary="order_product", back_populates="orders", cascade="all, delete")
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
     client: Mapped[Client] = relationship("Client", back_populates="orders", init=False)
