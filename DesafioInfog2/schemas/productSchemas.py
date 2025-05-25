@@ -19,3 +19,6 @@ class ProductCreate(BaseModel):
     category: str
     stock: int = Field(ge=0)
     expire_date: datetime | None = None
+
+class ProductList(BaseModel):
+    products: list[ProductPublic]
