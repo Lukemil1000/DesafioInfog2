@@ -24,6 +24,9 @@ def create_order(
     if not found_client:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f'Client with id {order.client_id} not found')
 
+    if order.products != set(order.products):
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=f'Product repeat not allowed')
+
     order_products = []
     for product_id in order.products:
         found_product = session.scalar(select(Product).where(Product.id == product_id))
@@ -102,3 +105,45 @@ def delete_order(
     session.commit()
 
     return {"message": "Order deleted"}
+
+@router.put('/{order_id}', status_code=HTTPStatus.OK, response_model=OrderPublic)
+def update_order(
+        order_update: OrderCreate,
+        order_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    order = session.scalar(select(Order).where(Order.id == order_id))
+
+    if not order:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f'Order not found'
+        )
+
+    found_client = session.scalar(select(Client).where(Client.id == order_update.client_id))
+
+    if not found_client:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f'Client with id {order_update.client_id} not found')
+
+    if order_update.products != set(order_update.products):
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=f'Product repeat not allowed')
+
+    order_products = []
+    for product_id in order_update.products:
+        found_product = session.scalar(select(Product).where(Product.id == product_id))
+
+        if not found_product:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f'Product with id {product_id} not found')
+
+        order_products.append(found_product)
+
+    order.state = order_update.state
+    order.products = order_products
+    order.client_id = order_update.client_id
+
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+
+    return order
