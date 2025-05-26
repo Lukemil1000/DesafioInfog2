@@ -18,7 +18,7 @@ class OrderProduct:
     __tablename__ = "order_product"
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
-    order_id: Mapped[int] = mapped_column("order_id", ForeignKey("orders.id"))
+    order_id: Mapped[int] = mapped_column("order_id", ForeignKey("orders.id", ondelete="CASCADE"))
     product_id: Mapped[int] = mapped_column("product_id", ForeignKey("products.id"))
 
 @table_registry.mapped_as_dataclass
@@ -52,7 +52,9 @@ class Product:
     category: Mapped[str] = mapped_column()
     stock: Mapped[int] = mapped_column()
     expire_date: Mapped[datetime] = mapped_column(nullable=True)
-    orders: Mapped[list["Order"]] = relationship("Order", secondary="order_product", back_populates="products")
+    orders: Mapped[list["Order"]] = relationship(
+        "Order", secondary="order_product", back_populates="products", init=False
+    )
 
 @table_registry.mapped_as_dataclass
 class Order:
@@ -62,6 +64,7 @@ class Order:
     state: Mapped[OrderState] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
     products: Mapped[list[Product]] = relationship(
-        "Product", secondary="order_product", back_populates="orders", cascade="all, delete")
+        "Product", secondary="order_product", back_populates="orders"
+    )
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
     client: Mapped[Client] = relationship("Client", back_populates="orders", init=False)
