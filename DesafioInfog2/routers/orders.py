@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from DesafioInfog2.database import get_session
 from DesafioInfog2.models import User, Product, Order, OrderState, Client
 from DesafioInfog2.schemas.orderSchemas import OrderCreate, OrderPublic, OrderList
+from DesafioInfog2.schemas.utilSchemas import Message
 from DesafioInfog2.securiry import get_token_user
 
 router = APIRouter(prefix='/orders', tags=['orders'])
@@ -82,3 +83,22 @@ def get_order_by_id(
         )
 
     return order
+
+@router.delete('/{order_id}', status_code=HTTPStatus.OK, response_model=Message)
+def delete_order(
+        order_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    order = session.scalar(select(Order).where(Order.id == order_id))
+
+    if not order:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f'Order not found'
+        )
+
+    session.delete(order)
+    session.commit()
+
+    return {"message": "Order deleted"}
