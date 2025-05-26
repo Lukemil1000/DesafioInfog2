@@ -14,18 +14,16 @@ from DesafioInfog2.settings import Settings
 
 from jwt import encode, decode, DecodeError, ExpiredSignatureError
 
-SECRET_KEY = Settings().SECRET_KEY
-ALGORITHM = Settings().ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = Settings().ACCESS_TOKEN_EXPIRE_MINUTES
+settings = Settings()
 
 pwd_context = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def create_access_token(data: dict):
     payload = data.copy()
-    expire = datetime.now(tz=ZoneInfo("UTC")) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(tz=ZoneInfo("UTC")) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     payload.update({"exp": expire})
-    encoded_jwt = encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 def hash_password(password: str):
@@ -42,7 +40,7 @@ def get_token_user(session: Session = Depends(get_session), token: str = Depends
     )
 
     try:
-        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         subject_username = payload.get("sub")
 
         if not subject_username:
