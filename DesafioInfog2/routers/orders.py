@@ -43,3 +43,26 @@ def create_order(
     session.refresh(db_order)
 
     return db_order
+
+@router.get('/', status_code=HTTPStatus.OK, response_model=OrderList)
+def get_orders(
+        skip: int = Query(default=0, ge=0),
+        limit: int = Query(default=10, gt=0),
+        state: OrderState | None = Query(default=None),
+        date_min: datetime | None = Query(default=None),
+        date_max: datetime | None = Query(default=None),
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    query = select(Order)
+
+    if state:
+        query = query.filter(Order.state == state)
+    if date_min:
+        query = query.filter(Order.created_at >= date_min)
+    if date_max:
+        query = query.filter(Order.created_at <= date_max)
+
+    orders = session.scalars(query.offset(skip).limit(limit)).all()
+
+    return {"orders": orders}
