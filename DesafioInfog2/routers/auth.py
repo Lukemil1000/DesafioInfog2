@@ -9,7 +9,7 @@ from DesafioInfog2.database import get_session
 from DesafioInfog2.models import User
 from DesafioInfog2.schemas.userSchemas import UserPublic, UserCreate
 from DesafioInfog2.schemas.utilSchemas import Token
-from DesafioInfog2.securiry import hash_password, verify_password, create_access_token, get_token_user
+from DesafioInfog2.security import hash_password, verify_password, create_access_token, get_token_user
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 

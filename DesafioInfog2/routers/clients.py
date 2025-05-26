@@ -8,7 +8,7 @@ from DesafioInfog2.database import get_session
 from DesafioInfog2.models import User, Client
 from DesafioInfog2.schemas.clientSchemas import ClientPublic, ClientCreate, ClientList
 from DesafioInfog2.schemas.utilSchemas import Message
-from DesafioInfog2.securiry import get_token_user
+from DesafioInfog2.security import get_token_user
 
 def check_existing_client(session: Session, client: ClientCreate, client_id: int | None = None):
     query = select(Client).where(

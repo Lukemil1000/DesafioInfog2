@@ -8,7 +8,7 @@ from DesafioInfog2.database import get_session
 from DesafioInfog2.models import User, Product
 from DesafioInfog2.schemas.productSchemas import ProductPublic, ProductCreate, ProductList
 from DesafioInfog2.schemas.utilSchemas import Message
-from DesafioInfog2.securiry import get_token_user
+from DesafioInfog2.security import get_token_user
 
 router = APIRouter(prefix='/products', tags=['products'])
 
