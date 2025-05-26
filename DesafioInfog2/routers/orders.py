@@ -66,3 +66,19 @@ def get_orders(
     orders = session.scalars(query.offset(skip).limit(limit)).all()
 
     return {"orders": orders}
+
+@router.get('/{order_id}', status_code=HTTPStatus.OK, response_model=OrderPublic)
+def get_order_by_id(
+        order_id: int,
+        session: Session = Depends(get_session),
+        token_user: User = Depends(get_token_user)
+):
+    order = session.scalar(select(Order).where(Order.id == order_id))
+
+    if not order:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f'Order not found'
+        )
+
+    return order
