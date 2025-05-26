@@ -2,8 +2,8 @@ import pytest
 from cpf_generator import CPF
 from sqlalchemy import select
 
-from DesafioInfog2.models import User, Client, Product
-from tests.factories import UserFactory, ClientFactory, ProductFactory
+from DesafioInfog2.models import User, Client, Product, Order
+from tests.factories import UserFactory, ClientFactory, ProductFactory, OrderFactory
 
 
 def test_create_user_in_database(session):
@@ -33,3 +33,17 @@ def test_create_product_in_database(session):
     found_product = session.scalar(select(Product).where(Product.name == "Test"))
 
     assert found_product.name == "Test"
+
+def test_create_order_in_database(session):
+    new_client = ClientFactory()
+    session.add(new_client)
+    session.commit()
+
+    new_order = OrderFactory()
+    session.add(new_order)
+    session.commit()
+    session.refresh(new_order)
+
+    found_order = session.scalar(select(Order).where(Order.id == new_order.id))
+
+    assert new_order.id == found_order.id

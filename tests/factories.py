@@ -1,7 +1,8 @@
 import factory
+import factory.fuzzy
 from cpf_generator import CPF
 
-from DesafioInfog2.models import User, Client, Product
+from DesafioInfog2.models import User, Client, Product, Order, OrderState
 
 
 class UserFactory(factory.Factory):
@@ -30,3 +31,11 @@ class ProductFactory(factory.Factory):
     category = factory.Faker("word")
     stock = factory.Faker("pyint", min_value=0)
     expire_date = factory.Faker("date_time_this_year", before_now=False, after_now=True)
+
+class OrderFactory(factory.Factory):
+    class Meta:
+        model = Order
+
+    state = factory.fuzzy.FuzzyChoice(OrderState)
+    products = [ProductFactory()]
+    client_id = 1
