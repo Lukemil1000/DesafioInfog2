@@ -49,6 +49,14 @@ http://localhost:8000/docs
 
 # Testes
 
+Para realizar os testes primeiro é necessário instalar as dependências
+do projeto com:
+
+```
+# Recomendado criar um ambiente virtual antes da instalação
+pip install -r requirements.txt
+```
+
 Os testes unitários utilizam um container de testes isolado do resto 
 da aplicação e podem ser executados com o comando:
 
